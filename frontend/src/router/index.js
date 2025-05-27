@@ -27,8 +27,8 @@ const routes = [
     //meta: { requiresAuth: true }
   },
 
-  { path: '/event/new', 
-    name: 'EventForm', 
+  { path: '/new', 
+    name: 'NewEvent', 
     component: EventForm 
   },
   { path: '/event/:id',
@@ -38,7 +38,15 @@ const routes = [
   },
   { path: '/contacts',
      name: 'Contacts', 
-     component: ContactsView }
+     component: ContactsView 
+  },
+  {
+  path: '/day',
+  name: 'DayView',
+  component: () => import('@/views/DayView.vue'),
+  //meta: { requiresAuth: true }
+  }
+
 
 
 ]

@@ -1,9 +1,8 @@
 <template>
   <nav class="navbar">
-    <router-link to="/">Calendario</router-link>
-    <router-link to="/contacts">Contactos</router-link>
-    <router-link to="/events">Eventos</router-link>
-    <button @click="logout" class="logout-btn">Cerrar sesión</button>
+    <router-link to="/">Calendar</router-link>
+    <router-link to="/contacts">Contacts</router-link>
+    <button @click="logout" class="logout-btn">Logout</button>
   </nav>
 </template>
 
