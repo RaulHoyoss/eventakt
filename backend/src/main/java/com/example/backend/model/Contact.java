@@ -1,5 +1,6 @@
 package com.example.backend.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.util.List;
 
@@ -11,20 +12,18 @@ public class Contact {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
     private String name;
-
     private String phone;
     private String email;
     private String photoUrl;
 
-    // Relación con User (muchos contactos pertenecen a un usuario)
     @ManyToOne
     @JoinColumn(name = "user_id")
+    @JsonIgnore
     private User user;
 
-    // Relación con Event (N:M)
     @ManyToMany(mappedBy = "contacts")
+    @JsonIgnore  // evita ciclos infinitos (opcional)
     private List<Event> events;
 
     // Getters y setters

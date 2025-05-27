@@ -1,5 +1,6 @@
 package com.example.backend.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -12,21 +13,17 @@ public class Event {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
     private String title;
-
     private String description;
-
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private String category;
 
-    // Relación con User (muchos eventos pertenecen a un usuario)
     @ManyToOne
     @JoinColumn(name = "user_id")
+    @JsonIgnore
     private User user;
 
-    // Relación N:M con Contact
     @ManyToMany
     @JoinTable(
             name = "event_contacts",
