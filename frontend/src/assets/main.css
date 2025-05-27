@@ -1,0 +1,16 @@
+/* Variables de colores */
+:root {
+  --primary: #42b983;
+  --secondary: #35495e;
+}
+
+/* Reset básico */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+}
