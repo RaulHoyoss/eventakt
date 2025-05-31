@@ -9,7 +9,7 @@ export const useAuthStore = defineStore('auth', () => {
 
   const login = async (credentials) => {
     try {
-      const response = await axios.post('http://localhost:8080/api/auth/login', credentials)
+      const response = await axios.post('http://localhost:8081/api/auth/login', credentials)
       user.value = response.data.user         // ✅ guarda datos completos del usuario
       token.value = response.data.token
       isAuthenticated.value = true
@@ -30,7 +30,7 @@ export const useAuthStore = defineStore('auth', () => {
         formData.append('profileImage', userData.profileImage)
       }
 
-      const response = await axios.post('http://localhost:8080/api/auth/register', formData, {
+      const response = await axios.post('http://localhost:8081/api/auth/register', formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
@@ -55,7 +55,7 @@ export const useAuthStore = defineStore('auth', () => {
   // ✅ Cargar el usuario si ya hay token guardado
   if (token.value) {
     isAuthenticated.value = true
-    axios.get('http://localhost:8080/api/auth/me', {
+    axios.get('http://localhost:8081/api/auth/me', {
       headers: { Authorization: `Bearer ${token.value}` }
     })
     .then(response => {

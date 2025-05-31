@@ -62,7 +62,7 @@ const handleFileChange = (event) => {
 
 const loadContact = async (id) => {
   try {
-    const { data } = await axios.get(`http://localhost:8080/api/contacts/${id}`)
+    const { data } = await axios.get(`http://localhost:8081/api/contacts/${id}`)
     form.value = {
       name: data.name,
       email: data.email,
@@ -89,13 +89,13 @@ const submitForm = async () => {
   try {
     if (isEditMode.value) {
       await axios.put(
-        `http://localhost:8080/api/contacts/${route.params.id}`,
+        `http://localhost:8081/api/contacts/${route.params.id}`,
         formData,
         { headers: { 'Content-Type': 'multipart/form-data' } }
       )
     } else {
       await axios.post(
-        `http://localhost:8080/api/contacts`,
+        `http://localhost:8081/api/contacts`,
         formData,
         { headers: { 'Content-Type': 'multipart/form-data' } }
       )

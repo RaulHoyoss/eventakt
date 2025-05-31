@@ -40,7 +40,7 @@ const placeholderImage = '/images/default-avatar.png'
 /*
 const loadContacts = async () => {
   try {
-    const { data } = await axios.get('http://localhost:8080/api/contacts')
+    const { data } = await axios.get('http://localhost:8081/api/contacts')
     contacts.value = data
   } catch (error) {
     console.error('Error cargando contactos:', error)
@@ -51,7 +51,7 @@ const loadContacts = async () => {
 
 const loadContacts = async () => {
   try {
-    const { data } = await axios.get('http://localhost:8080/api/contacts')
+    const { data } = await axios.get('http://localhost:8081/api/contacts')
     contacts.value = data.length ? data : [
       {
         id: 999,
@@ -87,7 +87,7 @@ const editContact = (id) => {
 const deleteContact = async (id) => {
   if (!confirm('Are you sure you want to delete this contact?')) return
   try {
-    await axios.delete(`http://localhost:8080/api/contacts/${id}`)
+    await axios.delete(`http://localhost:8081/api/contacts/${id}`)
     await loadContacts()
   } catch (error) {
     console.error('Error deleting contact:', error)

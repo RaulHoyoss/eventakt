@@ -122,7 +122,7 @@ const removeContact = (contact) => {
 onMounted(async () => {
   if (isEdit.value) {
     try {
-      const { data } = await axios.get(`http://localhost:8080/api/events/${id}`)
+      const { data } = await axios.get(`http://localhost:8081/api/events/${id}`)
       form.value = {
         title: data.title,
         startTime: dayjs(data.start).format('HH:mm'),
@@ -158,10 +158,10 @@ const submitEvent = async () => {
 
   try {
     if (isEdit.value) {
-      await axios.put(`http://localhost:8080/api/events/${id}`, payload)
+      await axios.put(`http://localhost:8081/api/events/${id}`, payload)
       toast.success('Event updated successfully!')
     } else {
-      await axios.post('http://localhost:8080/api/events', payload)
+      await axios.post('http://localhost:8081/api/events', payload)
       toast.success('Event created successfully!')
     }
 

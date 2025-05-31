@@ -13,7 +13,8 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = "http://localhost:5173") // Ajusta según tu frontend
+@CrossOrigin(origins = {"http://localhost:5173", "http://localhost:5174"})
+ // Ajusta según tu frontend
 public class AuthController {
 
     private final AuthenticationManager authenticationManager;

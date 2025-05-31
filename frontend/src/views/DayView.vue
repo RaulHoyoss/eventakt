@@ -50,7 +50,7 @@ const formattedDate = dayjs(date).format('DD [de] MMMM [de] YYYY')
 const events = ref([])
 
 const loadEvents = async () => {
-  const { data } = await axios.get(`http://localhost:8080/api/events`)
+  const { data } = await axios.get(`http://localhost:8081/api/events`)
   // Filtrar eventos de ese día
   events.value = data.filter(ev =>
   dayjs(ev.start).format('YYYY-MM-DD') === dayjs(date).format('YYYY-MM-DD')
@@ -72,7 +72,7 @@ const deleteEvent = async (id) => {
   if (!confirm('Are you sure you want to delete this event?')) return
 
   try {
-    await axios.delete(`http://localhost:8080/api/events/${id}`)
+    await axios.delete(`http://localhost:8081/api/events/${id}`)
     await loadEvents() // recarga los eventos para actualizar la lista
   } catch (error) {
     console.error('Error deleting event:', error)

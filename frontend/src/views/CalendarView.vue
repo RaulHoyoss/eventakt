@@ -25,7 +25,7 @@ const calendarOptions = ref({
   height: 'auto',
   events: async (fetchInfo, successCallback, failureCallback) => {
     try {
-      const res = await axios.get('http://localhost:8080/api/events')
+      const res = await axios.get('http://localhost:8081/api/events')
       successCallback(res.data)
     } catch (err) {
       failureCallback(err)
@@ -38,13 +38,13 @@ const calendarOptions = ref({
     router.push({ name: 'EditEvent', params: { id: info.event.id } })
   },
   eventDrop: async (info) => {
-    await axios.put(`http://localhost:8080/api/events/${info.event.id}`, {
+    await axios.put(`http://localhost:8081/api/events/${info.event.id}`, {
       start: info.event.start,
       end: info.event.end,
     })
   },
   eventResize: async (info) => {
-    await axios.put(`http://localhost:8080/api/events/${info.event.id}`, {
+    await axios.put(`http://localhost:8081/api/events/${info.event.id}`, {
       start: info.event.start,
       end: info.event.end,
     })
