@@ -41,13 +41,22 @@ const routes = [
      component: ContactsView 
   },
   {
+  path: '/contacts/new',
+  name: 'NewContact',
+  component: () => import('@/views/NewContactView.vue')
+},
+{
+  path: '/contacts/:id',
+  name: 'EditContact',
+  component: () => import('@/views/NewContactView.vue'),
+  props: true
+},
+{
   path: '/day',
   name: 'DayView',
   component: () => import('@/views/DayView.vue'),
   //meta: { requiresAuth: true }
-  }
-
-
+}
 
 ]
 

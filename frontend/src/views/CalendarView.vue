@@ -1,7 +1,7 @@
 <template>
   <div class="calendar-view">
     <div class="card">
-      <h1 class="calendar-title">Tu Calendario</h1>
+      <h1 class="calendar-title">Your Calendar</h1>
       <FullCalendar class="calendar" :options="calendarOptions" />
     </div>
   </div>

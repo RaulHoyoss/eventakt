@@ -31,11 +31,14 @@
         <div class="form-group">
           <label for="photo">Profile photo (optional)</label>
           <input type="file" id="photo" @change="handleFileUpload" accept="image/*" />
+          <div v-if="previewUrl" class="preview">
+          <img :src="previewUrl" alt="Foto de contacto" />
+        </div>
         </div>
 
         <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
 
-        <button type="submit" class="btn btn-primary">Registration</button>
+        <button type="submit" class="btn btn-primary">Register</button>
       </form>
       <p class="register-footer">
         ¿Already hava an account? <router-link to="/login">Login</router-link>
@@ -61,9 +64,19 @@ const errorMessage = ref('')
 const authStore = useAuthStore()
 const router = useRouter()
 
+const previewUrl = ref(null)
+
+
 const handleFileUpload = (e) => {
-  photo.value = e.target.files[0]
+  const file = e.target.files[0]
+  photo.value = file
+  if (file) {
+    previewUrl.value = URL.createObjectURL(file)
+  } else {
+    previewUrl.value = null
+  }
 }
+
 
 const handleRegister = async () => {
   errorMessage.value = ''
@@ -88,6 +101,9 @@ const handleRegister = async () => {
   try {
     await authStore.register(formData)
     router.push('/')
+    if (previewUrl.value) {
+  URL.revokeObjectURL(previewUrl.value)
+  }
   } catch (error) {
     errorMessage.value = error.message || 'Error al registrar'
   }
@@ -156,4 +172,17 @@ input:invalid {
   margin-top: 1rem;
   text-align: center;
 }
+
+.preview {
+  margin-top: 1rem;
+  text-align: center;
+}
+
+.preview img {
+  max-width: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 0 5px rgba(0,0,0,0.2);
+}
+
 </style>

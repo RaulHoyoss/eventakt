@@ -37,7 +37,7 @@ const handleLogin = async () => {
   errorMessage.value = ''
 
   if (!email.value || !password.value) {
-    errorMessage.value = 'Por favor, completa todos los campos.'
+    errorMessage.value = 'Please, complete all fields.'
     return
   }
 

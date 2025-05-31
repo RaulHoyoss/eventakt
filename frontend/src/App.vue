@@ -5,7 +5,9 @@ import { useAuthStore } from '@/stores/auth'
 import { computed } from 'vue'
 
 const authStore = useAuthStore()
-const isAuthenticated = computed(() => authStore.isAuthenticated.value) // ¡Ojo con el .value!
+const isAuthenticated = authStore.isAuthenticated
+
+
 </script>
 
 <template>
@@ -13,6 +15,7 @@ const isAuthenticated = computed(() => authStore.isAuthenticated.value) // ¡Ojo
     <!-- Barra de navegación -->
     <NavBar v-if="isAuthenticated" />
 
+    
     <!-- Contenedor principal -->
     <main class="main-content">
       <RouterView />
@@ -20,7 +23,7 @@ const isAuthenticated = computed(() => authStore.isAuthenticated.value) // ¡Ojo
 
     <!-- Footer -->
     <footer v-if="isAuthenticated" class="app-footer">
-      <p>Eventakt © 2023</p>
+      <p>Eventakt © 2025</p>
     </footer>
   </div>
 </template>

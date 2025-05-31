@@ -69,9 +69,17 @@ const editEvent = (id) => {
 }
 
 const deleteEvent = async (id) => {
-  await axios.delete(`http://localhost:8080/api/events/${id}`)
-  await loadEvents()
+  if (!confirm('Are you sure you want to delete this event?')) return
+
+  try {
+    await axios.delete(`http://localhost:8080/api/events/${id}`)
+    await loadEvents() // recarga los eventos para actualizar la lista
+  } catch (error) {
+    console.error('Error deleting event:', error)
+    alert('The event could not be deleted. Please try again..')
+  }
 }
+
 
 const goToCreate = () => {
   router.push({ name: 'NewEvent', query: { date } })
@@ -94,9 +102,18 @@ onMounted(() => {
       end: `${dayjs(date).format('YYYY-MM-DD')}T11:30:00`,
       category: 'Educación',
       contacts: ['raul@example.com', 'tutor@example.com']
+    },
+    {
+      id: 2,
+      title: 'Clase Zumba',
+      start: `${dayjs(date).format('YYYY-MM-DD')}T9:00:00`,
+      end: `${dayjs(date).format('YYYY-MM-DD')}T11:30:00`,
+      category: 'Deportes',
+      contacts: ['raul@example.com']
     }
   ]
 })
+
 
 
 </script>
