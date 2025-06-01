@@ -32,8 +32,8 @@
           <label for="photo">Profile photo (optional)</label>
           <input type="file" id="photo" @change="handleFileUpload" accept="image/*" />
           <div v-if="previewUrl" class="preview">
-          <img :src="previewUrl" alt="Foto de contacto" />
-        </div>
+            <img :src="previewUrl" alt="Foto de contacto" />
+          </div>
         </div>
 
         <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
@@ -41,7 +41,7 @@
         <button type="submit" class="btn btn-primary">Register</button>
       </form>
       <p class="register-footer">
-        ¿Already hava an account? <router-link to="/login">Login</router-link>
+        ¿Already have an account? <router-link to="/login">Login</router-link>
       </p>
     </div>
   </div>
@@ -63,9 +63,7 @@ const photo = ref(null)
 const errorMessage = ref('')
 const authStore = useAuthStore()
 const router = useRouter()
-
 const previewUrl = ref(null)
-
 
 const handleFileUpload = (e) => {
   const file = e.target.files[0]
@@ -76,7 +74,6 @@ const handleFileUpload = (e) => {
     previewUrl.value = null
   }
 }
-
 
 const handleRegister = async () => {
   errorMessage.value = ''
@@ -91,7 +88,10 @@ const handleRegister = async () => {
     return
   }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> be8ee1bf5d7e23b5d15c57e443d427cef80d728a
   try {
     await authStore.register({
   name: user.value.name,
@@ -99,12 +99,16 @@ const handleRegister = async () => {
   email: user.value.email,
   password: user.value.password,
   profileImage: photo.value
+<<<<<<< HEAD
   })
+=======
+  })
+>>>>>>> be8ee1bf5d7e23b5d15c57e443d427cef80d728a
 
     router.push('/')
     if (previewUrl.value) {
-  URL.revokeObjectURL(previewUrl.value)
-  }
+      URL.revokeObjectURL(previewUrl.value)
+    }
   } catch (error) {
     errorMessage.value = error.message || 'Error al registrar'
   }
@@ -153,6 +157,12 @@ input:invalid {
   border-color: red;
 }
 
+.preview img {
+  margin-top: 0.5rem;
+  max-width: 100px;
+  border-radius: 5px;
+}
+
 .error {
   color: red;
   margin-bottom: 1rem;
@@ -170,20 +180,13 @@ input:invalid {
 }
 
 .register-footer {
-  margin-top: 1rem;
   text-align: center;
-}
-
-.preview {
   margin-top: 1rem;
-  text-align: center;
+  color: var(--dark-gray, #7f8c8d);
 }
 
-.preview img {
-  max-width: 120px;
-  border-radius: 50%;
-  object-fit: cover;
-  box-shadow: 0 0 5px rgba(0,0,0,0.2);
+.register-footer a {
+  color: var(--primary, #3498db);
+  text-decoration: none;
 }
-
 </style>
