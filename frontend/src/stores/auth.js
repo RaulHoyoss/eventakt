@@ -1,23 +1,31 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import axios from 'axios'
+import axiosInstance from '@/api/axios' // instancia con interceptores
+import axios from 'axios' // axios limpio, sin interceptores
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref(null)
-  const isAuthenticated = ref(true)
+  const isAuthenticated = ref(false)
   const token = ref(localStorage.getItem('token') || null)
 
   const login = async (credentials) => {
-    try {
-      const response = await axios.post('http://localhost:8081/api/auth/login', credentials)
-      user.value = response.data.user         // ✅ guarda datos completos del usuario
-      token.value = response.data.token
-      isAuthenticated.value = true
-      localStorage.setItem('token', token.value)
-    } catch (error) {
-      throw error.response?.data?.message || 'Error en el login'
-    }
+  try {
+    // 🚀 Usa axios limpio para login
+    const response = await axios.post('http://localhost:8081/api/auth/login', credentials)
+    token.value = response.data // El backend solo devuelve el token como String plano
+    isAuthenticated.value = true
+    localStorage.setItem('token', token.value)
+
+    // ✅ Opcional: cargar el usuario actual
+    const meResponse = await axiosInstance.get('/auth/me', {
+      headers: { Authorization: `Bearer ${token.value}` }
+    })
+    user.value = meResponse.data
+  } catch (error) {
+    throw error.response?.data?.message || 'Error en el login'
   }
+}
+
 
   const register = async (userData) => {
     try {
@@ -30,13 +38,14 @@ export const useAuthStore = defineStore('auth', () => {
         formData.append('profileImage', userData.profileImage)
       }
 
+      // 🚀 Usa axios limpio para registro
       const response = await axios.post('http://localhost:8081/api/auth/register', formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
       })
 
-      user.value = response.data.user         // ✅ guarda usuario tras registro
+      user.value = response.data.user
       token.value = response.data.token
       isAuthenticated.value = true
       localStorage.setItem('token', token.value)
@@ -55,15 +64,13 @@ export const useAuthStore = defineStore('auth', () => {
   // ✅ Cargar el usuario si ya hay token guardado
   if (token.value) {
     isAuthenticated.value = true
-    axios.get('http://localhost:8081/api/auth/me', {
-      headers: { Authorization: `Bearer ${token.value}` }
-    })
-    .then(response => {
-      user.value = response.data
-    })
-    .catch(() => {
-      logout()
-    })
+    axiosInstance.get('/auth/me')
+      .then(response => {
+        user.value = response.data
+      })
+      .catch(() => {
+        logout()
+      })
   }
 
   return {
