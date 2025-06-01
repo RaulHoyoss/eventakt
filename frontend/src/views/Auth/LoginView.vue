@@ -42,12 +42,16 @@ const handleLogin = async () => {
   }
 
   try {
-    await authStore.login({ email: email.value, password: password.value })
+    await authStore.login({
+      username: email.value, // 👈 usa "username" para que funcione con el backend
+      password: password.value
+    })
     router.push('/')
   } catch (error) {
     errorMessage.value = error
   }
 }
+
 </script>
 
 <style scoped>
