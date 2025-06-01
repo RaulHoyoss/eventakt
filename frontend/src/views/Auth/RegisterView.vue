@@ -91,15 +91,16 @@ const handleRegister = async () => {
     return
   }
 
-  const formData = new FormData()
-  formData.append('name', user.value.name)
-  formData.append('phone', user.value.phone)
-  formData.append('email', user.value.email)
-  formData.append('password', user.value.password)
-  if (photo.value) formData.append('photo', photo.value)
 
   try {
-    await authStore.register(formData)
+    await authStore.register({
+  name: user.value.name,
+  phone: user.value.phone,
+  email: user.value.email,
+  password: user.value.password,
+  profileImage: photo.value
+  })
+
     router.push('/')
     if (previewUrl.value) {
   URL.revokeObjectURL(previewUrl.value)
