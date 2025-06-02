@@ -46,7 +46,7 @@ const handleLogin = async () => {
       username: email.value, // 👈 usa "username" para que funcione con el backend
       password: password.value
     })
-    router.push('/')
+    router.push('/calendar')
   } catch (error) {
     errorMessage.value = error
   }
