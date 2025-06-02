@@ -3,6 +3,7 @@ package com.example.backend.controller;
 import com.example.backend.model.User;
 import com.example.backend.service.UserService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -40,4 +41,6 @@ public class UserController {
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
     }
+
+
 }

@@ -1,5 +1,5 @@
 <template>
-  <nav class="navbar" v-if="isAuthenticated">
+  <nav class="navbar"  v-if="showNavbar">
     <router-link to="/calendar" class="nav-link">Calendar</router-link>
     <router-link to="/contacts" class="nav-link">Contacts</router-link>
 
@@ -16,11 +16,27 @@
 
 <script setup>
 import { useAuthStore } from '@/stores/auth'
-import { useRouter } from 'vue-router'
+import { useRouter , useRoute } from 'vue-router'
 import { computed } from 'vue'
 
 const authStore = useAuthStore()
 const router = useRouter()
+const route = useRoute()
+
+const allowedRoutes = [
+  'calendar',
+  'DayView',
+  'NewEvent',
+  'EventForm',
+  'Contacts',
+  'NewContact'
+]
+
+
+const showNavbar = computed(() => {
+  return allowedRoutes.includes(route.name)
+})
+
 
 const user = computed(() => authStore.user)
 const isAuthenticated = computed(() => authStore.isAuthenticated)

@@ -27,7 +27,40 @@ public class AuthController {
         this.jwtUtil = jwtUtil;
         this.userService = userService;
     }
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody AuthRequest request) {
+        System.out.println("🟡 Intentando login con:");
+        System.out.println("    Usuario: " + request.getUsername());
+        System.out.println("    Contraseña: " + request.getPassword());
 
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
+            );
+            System.out.println("🟢 Autenticación exitosa");
+            String token = jwtUtil.generateToken(request.getUsername());
+            return ResponseEntity.ok(Map.of("token", token));
+        } catch (BadCredentialsException ex) {
+            System.out.println("🔴 Credenciales inválidas");
+            return ResponseEntity.status(401).body("Credenciales inválidas");
+        } catch (Exception ex) {
+            System.out.println("🔴 Error inesperado: " + ex.getMessage());
+            return ResponseEntity.status(500).body("Error en el servidor");
+        }
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<?> getCurrentUser(Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(403).body("No autorizado");
+        }
+        // Puedes devolver el principal (user details)
+        return ResponseEntity.ok(authentication.getPrincipal());
+    }
+
+
+
+    /*
     @PostMapping("/login")
     public String login(@RequestBody AuthRequest request) {
         Authentication authentication = authenticationManager.authenticate(
@@ -35,6 +68,8 @@ public class AuthController {
         );
         return jwtUtil.generateToken(request.getUsername());
     }
+
+     */
 
     @PostMapping("/register")
     public ResponseEntity<?> register(

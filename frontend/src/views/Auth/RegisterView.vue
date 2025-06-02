@@ -88,10 +88,7 @@ const handleRegister = async () => {
     return
   }
 
-<<<<<<< HEAD
 
-=======
->>>>>>> be8ee1bf5d7e23b5d15c57e443d427cef80d728a
   try {
     await authStore.register({
   name: user.value.name,
@@ -99,12 +96,7 @@ const handleRegister = async () => {
   email: user.value.email,
   password: user.value.password,
   profileImage: photo.value
-<<<<<<< HEAD
   })
-=======
-  })
->>>>>>> be8ee1bf5d7e23b5d15c57e443d427cef80d728a
-
     router.push('/')
     if (previewUrl.value) {
       URL.revokeObjectURL(previewUrl.value)

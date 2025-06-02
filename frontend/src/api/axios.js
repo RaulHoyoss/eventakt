@@ -1,33 +1,24 @@
 import axios from 'axios'
 
 const instance = axios.create({
-  baseURL: 'http://localhost:8081/api', // ✅ Ajusta a tu puerto
+  baseURL: 'http://localhost:8081/api',
   headers: {
     'Content-Type': 'application/json'
   }
 })
 
-// Interceptor para añadir token en cada petición automáticamente
-instance.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token')
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`
-  }
-  return config
-})
-
+// Interceptor para añadir token en cada petición excepto login y register
 instance.interceptors.request.use((config) => {
   const token = localStorage.getItem('token')
   const isAuthRoute = config.url.includes('/auth/login') || config.url.includes('/auth/register')
 
   if (token && !isAuthRoute) {
     config.headers.Authorization = `Bearer ${token}`
+    console.log('Interceptor: agregando header Authorization')
+
   }
 
   return config
 })
 
-
-
 export default instance
-
