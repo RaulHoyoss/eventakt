@@ -41,6 +41,15 @@ public class UserService {
         userRepository.deleteById(id);
     }
 
+    public Optional<User> findByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
+
+    public List<User> findAllByEmails(List<String> emails) {
+        return userRepository.findAllByEmailIn(emails);
+    }
+
+
     public User registerUser(String name, String email, String password, String phone, MultipartFile profileImage) {
         // Verificar si ya existe el usuario, encriptar contraseña, guardar imagen, etc.
         User user = new User();

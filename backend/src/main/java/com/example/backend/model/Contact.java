@@ -22,6 +22,10 @@ public class Contact {
     @JsonIgnore
     private User user;
 
+    @ManyToOne // Nueva relación para Category
+    @JoinColumn(name = "category_id") // Columna de clave foránea en la tabla contacts
+    private Category category; // Cambiado de String a objeto Category
+
     @ManyToMany(mappedBy = "contacts")
     @JsonIgnore  // evita ciclos infinitos (opcional)
     private List<Event> events;
@@ -83,5 +87,12 @@ public class Contact {
         this.events = events;
     }
 
+    public Category getCategory() {
+        return category;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
+    }
 
 }

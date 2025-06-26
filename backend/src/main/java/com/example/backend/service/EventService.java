@@ -2,7 +2,10 @@ package com.example.backend.service;
 
 import com.example.backend.model.Contact;
 import com.example.backend.model.Event;
+import com.example.backend.model.User;
+import com.example.backend.model.dto.ContactDTO;
 import com.example.backend.model.dto.EventDTO;
+import com.example.backend.model.dto.EventRequestDTO;
 import com.example.backend.model.dto.EventResponseDTO;
 import com.example.backend.repository.ContactRepository;
 import com.example.backend.repository.EventRepository;
@@ -45,17 +48,41 @@ public class EventService {
         return eventRepository.save(event);
     }
 
+
+    public Event updateEvent(Long id, EventRequestDTO dto, User owner) {
+        Event event = eventRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Evento no encontrado con ID: " + id));
+
+        event.setTitle(dto.getTitle());
+        event.setDescription(dto.getDescription());
+        event.setStartTime(dto.getStart());
+        event.setEndTime(dto.getEnd());
+        event.setCategory(dto.getCategory());
+        event.setUser(owner);
+
+        List<Contact> resolvedContacts = dto.getContacts().stream()
+                .map(email -> contactRepository.findByEmail(email)
+                        .orElseThrow(() -> new RuntimeException("Contacto no encontrado: " + email)))
+                .collect(Collectors.toList());
+
+        event.setContacts(resolvedContacts);
+
+        return eventRepository.save(event);
+    }
+
+
     public void deleteEvent(Long id) {
         eventRepository.deleteById(id);
     }
 
-    public Event createEventFromDto(EventDTO dto) {
+    public Event createEvent(EventRequestDTO dto, User user) {
         Event event = new Event();
         event.setTitle(dto.getTitle());
         event.setDescription(dto.getDescription());
         event.setStartTime(dto.getStart());
         event.setEndTime(dto.getEnd());
         event.setCategory(dto.getCategory());
+        event.setUser(user);
 
         // Convertir los emails en Contactos
         List<Contact> resolvedContacts = dto.getContacts().stream()
@@ -67,6 +94,7 @@ public class EventService {
 
         return eventRepository.save(event);
     }
+
     public EventResponseDTO mapToDto(Event event) {
         EventResponseDTO dto = new EventResponseDTO();
         dto.setId(event.getId());
@@ -76,11 +104,13 @@ public class EventService {
         dto.setEnd(event.getEndTime());
         dto.setCategory(event.getCategory());
 
-        List<String> contactEmails = event.getContacts().stream()
-                .map(contact -> contact.getEmail())
+        // Convertimos la lista de Contact a ContactDTO
+        List<ContactDTO> contactDTOs = event.getContacts().stream()
+                .map(contact -> new ContactDTO(contact.getName(), contact.getEmail()))
                 .toList();
 
-        dto.setContacts(contactEmails);
+        dto.setContacts(contactDTOs);
+
         return dto;
     }
 

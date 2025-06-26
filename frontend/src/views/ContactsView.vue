@@ -6,10 +6,11 @@
 
     <div v-if="contacts.length" class="contact-grid">
       <div class="contact-card" v-for="contact in contacts" :key="contact.id">
-        <img :src="contact.photo || placeholderImage" alt="Foto" class="contact-photo" />
+        <img :src="contact.photoUrl || placeholderImage" alt="Foto" class="contact-photo" />
         <h3>{{ contact.name }}</h3>
         <p><strong>Email:</strong> {{ contact.email }}</p>
         <p><strong>Phone:</strong> {{ contact.phone }}</p>
+        <p><strong>Category:</strong> {{ contact.category }}</p>
         <div class="actions">
           <button @click="editContact(contact.id)">✏️ Edit</button>
           <button @click="deleteContact(contact.id)">🗑️ Delete</button>
@@ -26,6 +27,8 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
 import { useToast } from 'vue-toastification'
+import axiosInstance from '@/api/axios'
+
 
 const contacts = ref([])
 const router = useRouter()
@@ -37,44 +40,33 @@ const defaultImage = '/images/default-avatar.png'
 const placeholderImage = '/images/default-avatar.png'
 
 
-/*
 const loadContacts = async () => {
   try {
-    const { data } = await axios.get('http://localhost:8081/api/contacts')
-    contacts.value = data
+    const { data } = await axiosInstance.get('/contacts')
+    contacts.value = data.map(contact => ({
+      id: contact.id,
+      name: contact.name,
+      email: contact.email,
+      phone: contact.phone,
+      photoUrl: contact.photoUrl ? `http://localhost:8081${contact.photoUrl}` : placeholderImage,
+      category: contact.category ? contact.category.name : 'No Category'
+    }))
   } catch (error) {
     console.error('Error cargando contactos:', error)
-  }
-}
-
-*/
-
-const loadContacts = async () => {
-  try {
-    const { data } = await axios.get('http://localhost:8081/api/contacts')
-    contacts.value = data.length ? data : [
-      {
-        id: 999,
-        name: 'Ana García',
-        email: 'ana@example.com',
-        phone: '+34 612 345 678',
-        photo: null // no tiene foto, usará placeholderImage
-      }
-    ]
-  } catch (error) {
-    console.error('Error cargando contactos:', error)
-    // Si falla la API, mostramos un ejemplo por defecto
     contacts.value = [
       {
         id: 999,
         name: 'Ana García',
         email: 'ana@example.com',
         phone: '+34 612 345 678',
-        photo: null
+        photoUrl: placeholderImage, // Asegúrate de que el placeholder se use aquí también
+        category: 'Example'
       }
     ]
   }
 }
+
+
 
 const goToCreate = () => {
   router.push({ name: 'NewContact' })
@@ -87,11 +79,12 @@ const editContact = (id) => {
 const deleteContact = async (id) => {
   if (!confirm('Are you sure you want to delete this contact?')) return
   try {
-    await axios.delete(`http://localhost:8081/api/contacts/${id}`)
+    await axiosInstance.delete(`http://localhost:8081/api/contacts/${id}`)
+    toast.success('Contact deleted successfully!')
     await loadContacts()
   } catch (error) {
     console.error('Error deleting contact:', error)
-    toast.alert('The contact could not be deleted.')
+    toast.error('The contact could not be deleted.')
   }
 }
 

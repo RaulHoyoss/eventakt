@@ -1,9 +1,12 @@
+// src/main/java/com/example/backend/service/ContactService.java
 package com.example.backend.service;
 
 import com.example.backend.model.Contact;
 import com.example.backend.model.User;
+import com.example.backend.model.Category; // Importar Category
 import com.example.backend.repository.ContactRepository;
 import com.example.backend.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -11,24 +14,24 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Optional;
-;
-
+import java.util.UUID;
 
 @Service
 public class ContactService {
 
     private final ContactRepository contactRepository;
     private final UserRepository userRepository;
-    private static final String uploadFolder = "uploads";
+    private final CategoryService categoryService; // Inyectar CategoryService
 
+    @Value("${upload.dir}") // Asegúrate de tener esta propiedad configurada en application.properties
+    private String uploadDir;
 
-
-    public ContactService(ContactRepository contactRepository, UserRepository userRepository) {
+    public ContactService(ContactRepository contactRepository, UserRepository userRepository, CategoryService categoryService) {
         this.contactRepository = contactRepository;
         this.userRepository = userRepository;
+        this.categoryService = categoryService;
     }
 
     public List<Contact> getAllContacts() {
@@ -43,7 +46,36 @@ public class ContactService {
         return contactRepository.findById(id);
     }
 
-    public Contact saveContact(Contact contact) {
+    // Nuevo método para guardar contacto, ahora recibe categoryName (String)
+    public Contact saveContactWithPhoto(String name, String email, String phone, String categoryName, MultipartFile photo, String userEmail) {
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado para el email: " + userEmail));
+
+        // Encontrar o crear la categoría basada en el nombre y el usuario
+        Category category = categoryService.findOrCreateCategory(categoryName, userEmail)
+                .orElseThrow(() -> new RuntimeException("Categoría no encontrada o no pudo ser creada: " + categoryName));
+
+        Contact contact = new Contact();
+        contact.setName(name);
+        contact.setEmail(email);
+        contact.setPhone(phone);
+        contact.setUser(user);
+        contact.setCategory(category); // Asigna el objeto Category
+
+        if (photo != null && !photo.isEmpty()) {
+            try {
+                String fileName = UUID.randomUUID().toString() + "_" + photo.getOriginalFilename();
+                Path uploadPath = Paths.get(uploadDir);
+                if (!Files.exists(uploadPath)) {
+                    Files.createDirectories(uploadPath);
+                }
+                Path filePath = uploadPath.resolve(fileName);
+                Files.copy(photo.getInputStream(), filePath);
+                contact.setPhotoUrl("/uploads/" + fileName); // Asumiendo que '/uploads/' es tu mapeo de contenido estático
+            } catch (IOException e) {
+                throw new RuntimeException("Fallo al almacenar la foto", e);
+            }
+        }
         return contactRepository.save(contact);
     }
 
@@ -52,74 +84,38 @@ public class ContactService {
     }
 
     public List<Contact> getContactsByUserEmail(String email) {
-
-        User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado para el email: " + email));
         return contactRepository.findByUserId(user.getId());
     }
 
-    public Contact saveContactForUser(Contact contact, String email) {
-        User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
-        contact.setUser(user);
-        return contactRepository.save(contact);
-    }
+    // Método para actualizar contacto, ahora recibe categoryName (String)
+    public Optional<Contact> updateContact(Long id, String name, String email, String phone, String categoryName, MultipartFile photo, String userEmail) {
+        return contactRepository.findById(id).map(contact -> {
+            contact.setName(name);
+            contact.setEmail(email);
+            contact.setPhone(phone);
 
-    public Contact saveContactWithPhoto(String name, String email, String phone, MultipartFile photo, String userEmail) {
-        User user = userRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new RuntimeException("User not found: " + userEmail));
+            // Encontrar o crear la categoría basada en el nombre y el usuario
+            Category category = categoryService.findOrCreateCategory(categoryName, userEmail)
+                    .orElseThrow(() -> new RuntimeException("Categoría no encontrada o no pudo ser creada: " + categoryName));
+            contact.setCategory(category); // Actualiza el objeto Category
 
-        Contact contact = new Contact();
-        contact.setName(name);
-        contact.setEmail(email);
-        contact.setPhone(phone);
-        contact.setUser(user);
-
-        if (photo != null && !photo.isEmpty()) {
-            try {
-                Path uploadPath = Paths.get("uploads");
-                if (!Files.exists(uploadPath)) {
-                    Files.createDirectories(uploadPath);
+            if (photo != null && !photo.isEmpty()) {
+                try {
+                    String fileName = UUID.randomUUID().toString() + "_" + photo.getOriginalFilename();
+                    Path uploadPath = Paths.get(uploadDir);
+                    if (!Files.exists(uploadPath)) {
+                        Files.createDirectories(uploadPath);
+                    }
+                    Path filePath = uploadPath.resolve(fileName);
+                    Files.copy(photo.getInputStream(), filePath);
+                    contact.setPhotoUrl("/uploads/" + fileName);
+                } catch (IOException e) {
+                    throw new RuntimeException("Fallo al almacenar la foto", e);
                 }
-
-                String filename = System.currentTimeMillis() + "_" + photo.getOriginalFilename();
-                Path filePath = uploadPath.resolve(filename);
-                Files.copy(photo.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-
-                String photoUrl = "http://localhost:8081/uploads/" + filename;
-                contact.setPhotoUrl(photoUrl);
-            } catch (IOException e) {
-                throw new RuntimeException("Failed to save photo", e);
             }
-        }
-
-        return contactRepository.save(contact);
+            return contactRepository.save(contact);
+        });
     }
-    public Optional<Contact> updateContact(Long id, String name, String email, String phone, MultipartFile photo, String userEmail) {
-        Optional<Contact> optionalContact = contactRepository.findById(id);
-        if (optionalContact.isEmpty()) return Optional.empty();
-
-        Contact contact = optionalContact.get();
-        if (!contact.getUser().getEmail().equals(userEmail)) {
-            throw new RuntimeException("Unauthorized");
-        }
-
-        contact.setName(name);
-        contact.setEmail(email);
-        contact.setPhone(phone);
-
-        if (photo != null && !photo.isEmpty()) {
-            try {
-                Path uploadPath = Paths.get("uploads");
-                if (!Files.exists(uploadPath)) Files.createDirectories(uploadPath);
-                String filename = System.currentTimeMillis() + "_" + photo.getOriginalFilename();
-                Path filePath = uploadPath.resolve(filename);
-                Files.copy(photo.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-                contact.setPhotoUrl("http://localhost:8081/uploads/" + filename);
-            } catch (IOException e) {
-                throw new RuntimeException("Failed to update photo", e);
-            }
-        }
-
-        return Optional.of(contactRepository.save(contact));
-    }
-
 }

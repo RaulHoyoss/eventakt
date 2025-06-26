@@ -23,14 +23,7 @@ const calendarOptions = ref({
   initialView: 'dayGridMonth',
   selectable: true,
   height: 'auto',
-  events: async (fetchInfo, successCallback, failureCallback) => {
-    try {
-      const res = await axios.get('http://localhost:8081/api/events')
-      successCallback(res.data)
-    } catch (err) {
-      failureCallback(err)
-    }
-  },
+  events: [],
   dateClick: (info) => {
     router.push({ name: 'DayView', query: { date: info.dateStr } })
   },

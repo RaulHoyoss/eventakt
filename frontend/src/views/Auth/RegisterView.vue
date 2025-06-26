@@ -1,8 +1,9 @@
 <template>
   <div class="register-view container">
     <div class="card">
-      <h1 class="register-title">Create an account on Eventakt</h1>
-      <form @submit.prevent="handleRegister" class="register-form" enctype="multipart/form-data">
+      <h1 class="register-title">{{ isEditing ? 'My Profile' : 'Create an account on Eventakt' }}</h1> <!-- ✅ CAMBIO -->
+
+      <form @submit.prevent="handleSubmit" class="register-form" enctype="multipart/form-data">
         <div class="form-group">
           <label for="name">Full Name</label>
           <input type="text" id="name" v-model="user.name" required />
@@ -18,12 +19,12 @@
           <input type="email" id="email" v-model="user.email" required />
         </div>
 
-        <div class="form-group">
+        <div v-if="!isEditing" class="form-group"> <!-- ✅ CAMBIO -->
           <label for="password">Password</label>
           <input type="password" id="password" v-model="user.password" required minlength="6" />
         </div>
 
-        <div class="form-group">
+        <div v-if="!isEditing" class="form-group"> <!-- ✅ CAMBIO -->
           <label for="confirmPassword">Confirm Password</label>
           <input type="password" id="confirmPassword" v-model="user.confirmPassword" required />
         </div>
@@ -31,26 +32,68 @@
         <div class="form-group">
           <label for="photo">Profile photo (optional)</label>
           <input type="file" id="photo" @change="handleFileUpload" accept="image/*" />
-          <div v-if="previewUrl" class="preview">
+          <div v-if="previewUrl" class="preview centered-preview"> <!-- ✅ CAMBIO -->
             <img :src="previewUrl" alt="Foto de contacto" />
           </div>
         </div>
 
         <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
 
-        <button type="submit" class="btn btn-primary">Register</button>
+        <button type="submit" class="btn btn-primary">
+          {{ isEditing ? 'Update' : 'Register' }} <!-- ✅ CAMBIO -->
+        </button>
       </form>
-      <p class="register-footer">
+
+      <p v-if="!isEditing" class="register-footer"> <!-- ✅ CAMBIO -->
         ¿Already have an account? <router-link to="/login">Login</router-link>
       </p>
     </div>
   </div>
 </template>
 
+
 <script setup>
-import { ref } from 'vue'
+import { ref,reactive,onMounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
+
+
+const route = useRoute()
+
+const isEditing = route.name === 'UserProfile'
+
+
+const handleSubmit = () => {
+  if (isEditing) {
+    handleUpdate()
+  } else {
+    handleRegister()
+  }
+}
+
+const handleUpdate = async () => {
+  errorMessage.value = ''
+
+  if (!user.value.name || !user.value.email || !user.value.phone) {
+    errorMessage.value = 'Please complete all required fields.'
+    return
+  }
+
+  try {
+    await authStore.updateProfile({
+      name: user.value.name,
+      phone: user.value.phone,
+      email: user.value.email,
+      profileImage: photo.value
+    })
+    router.push('/calendar') // O simplemente notificar al usuario
+    if (previewUrl.value) {
+      URL.revokeObjectURL(previewUrl.value)
+    }
+  } catch (error) {
+    errorMessage.value = error.message || 'Error al actualizar'
+  }
+}
 
 const user = ref({
   name: '',
@@ -79,12 +122,12 @@ const handleRegister = async () => {
   errorMessage.value = ''
 
   if (!user.value.name || !user.value.email || !user.value.password || !user.value.phone) {
-    errorMessage.value = 'Por favor, completa todos los campos obligatorios.'
+    errorMessage.value = 'Please complete all required fields.'
     return
   }
 
   if (user.value.password !== user.value.confirmPassword) {
-    errorMessage.value = 'Las contraseñas no coinciden.'
+    errorMessage.value = 'Passwords dont match.'
     return
   }
 
@@ -105,6 +148,19 @@ const handleRegister = async () => {
     errorMessage.value = error.message || 'Error al registrar'
   }
 }
+
+
+onMounted(() => {
+  if (isEditing) {
+    const currentUser = authStore.user
+    user.value.name = currentUser.name
+    user.value.phone = currentUser.phone
+    user.value.email = currentUser.email
+    previewUrl.value = currentUser.profileImagePath
+      ? `http://localhost:8081/${currentUser.profileImagePath.replace(/\\/g, '/')}`
+      : null
+  }
+})
 </script>
 
 <style scoped>
@@ -153,6 +209,19 @@ input:invalid {
   margin-top: 0.5rem;
   max-width: 100px;
   border-radius: 5px;
+}
+
+.centered-preview {
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+.centered-preview img {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
 }
 
 .error {

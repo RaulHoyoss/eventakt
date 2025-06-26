@@ -32,7 +32,7 @@ const routes = [
     component: EventForm 
   },
   { path: '/event/:id',
-     name: 'EventForm', 
+     name: 'EditEvent', 
      component: EventForm,
       props: true 
   },
@@ -56,6 +56,12 @@ const routes = [
   name: 'DayView',
   component: () => import('@/views/DayView.vue'),
   //meta: { requiresAuth: true }
+},
+{
+  path:'/profile',
+  name: 'UserProfile',
+  component: RegisterView,
+  
 }
 
 ]

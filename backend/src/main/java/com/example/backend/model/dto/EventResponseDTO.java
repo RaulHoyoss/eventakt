@@ -10,7 +10,7 @@ public class EventResponseDTO {
     private LocalDateTime start;
     private LocalDateTime end;
     private String category;
-    private List<String> contacts; // emails
+    private List<ContactDTO> contacts;
 
     // Getters y setters
     public Long getId() { return id; }
@@ -31,7 +31,11 @@ public class EventResponseDTO {
     public String getCategory() { return category; }
     public void setCategory(String category) { this.category = category; }
 
-    public List<String> getContacts() { return contacts; }
-    public void setContacts(List<String> contacts) { this.contacts = contacts; }
+
+
+    // Después
+    public List<ContactDTO> getContacts() { return contacts; }
+    public void setContacts(List<ContactDTO> contacts) { this.contacts = contacts; }
+
 }
 

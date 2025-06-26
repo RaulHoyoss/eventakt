@@ -10,4 +10,7 @@ public interface ContactRepository extends JpaRepository<Contact, Long> {
     // Por ejemplo, listar los contactos de un usuario
     List<Contact> findByUserId(Long userId);
     Optional<Contact> findByEmail(String email);
+
+    List<Contact> findAllByEmailIn(List<String> emails);
+
 }

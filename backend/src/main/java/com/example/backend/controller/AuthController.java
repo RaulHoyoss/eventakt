@@ -1,15 +1,20 @@
 package com.example.backend.controller;
 
 import com.example.backend.model.User;
+import com.example.backend.model.dto.ProfileUpdateRequest;
+import com.example.backend.model.dto.UserDto;
 import com.example.backend.security.JwtUtil;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import com.example.backend.service.UserService;
 import org.springframework.web.multipart.MultipartFile;
+import com.example.backend.service.FileStorageService;
 
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -20,12 +25,15 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
 
+    private final FileStorageService fileStorageService;
+
     private final UserService userService;
 
-    public AuthController(AuthenticationManager authenticationManager, JwtUtil jwtUtil, UserService userService) {
+    public AuthController(AuthenticationManager authenticationManager, JwtUtil jwtUtil, UserService userService, FileStorageService fileStorageService) {
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
         this.userService = userService;
+        this.fileStorageService = fileStorageService;
     }
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody AuthRequest request) {
@@ -59,19 +67,74 @@ public class AuthController {
     }
 
 
+    @GetMapping("/profile")
+    public ResponseEntity<?> getProfile(Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(403).body("No autorizado");
+        }
 
-    /*
-    @PostMapping("/login")
-    public String login(@RequestBody AuthRequest request) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
-        );
-        return jwtUtil.generateToken(request.getUsername());
+        String email = authentication.getName();  // extrae el email del token
+        Optional<User> userOpt = userService.findByEmail(email);
+
+        if (userOpt.isEmpty()) {
+            return ResponseEntity.status(404).body("Usuario no encontrado");
+        }
+
+        User user = userOpt.get();
+
+        return ResponseEntity.ok(Map.of(
+                "name", user.getName(),
+                "email", user.getEmail(),
+                "phone", user.getPhone(),
+                "profileImagePath",
+                user.getProfileImagePath() != null
+                        ? user.getProfileImagePath().replace("\\", "/")
+                        : "images/default-avatar.png"
+        ));
     }
 
-     */
 
-    @PostMapping("/register")
+    @PutMapping(value = "/profile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<UserDto> updateCurrentUser(
+            @RequestPart("name") String name,
+            @RequestPart("phone") String phone,
+            @RequestPart("email") String email,
+            @RequestPart(value = "profileImage", required = false) MultipartFile profileImage,
+            Authentication authentication) {
+
+        String currentEmail = authentication.getName();
+
+        return userService.findByEmail(currentEmail)
+                .map(user -> {
+                    user.setName(name);
+                    user.setPhone(phone);
+                    user.setEmail(email);
+
+                    if (profileImage != null && !profileImage.isEmpty()) {
+                        String path = fileStorageService.save(profileImage);
+                        user.setProfileImagePath(path);
+                    }
+
+                    User savedUser = userService.saveUser(user);
+
+                    UserDto dto = new UserDto(
+                            savedUser.getName(),
+                            savedUser.getEmail(),
+                            savedUser.getPhone(),
+                            savedUser.getProfileImagePath()
+                    );
+
+                    return ResponseEntity.ok(dto);
+                })
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+
+
+
+
+
+        @PostMapping("/register")
     public ResponseEntity<?> register(
             @RequestParam("name") String name,
             @RequestParam("email") String email,

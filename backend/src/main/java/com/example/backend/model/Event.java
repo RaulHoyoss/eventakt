@@ -96,4 +96,7 @@ public class Event {
     public void setContacts(List<Contact> contacts) {
         this.contacts = contacts;
     }
+
+
+
 }
