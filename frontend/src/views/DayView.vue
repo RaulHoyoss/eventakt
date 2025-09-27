@@ -79,6 +79,8 @@ const formatContacts = (contacts) => {
 }
 
 const loadEvents = async () => {
+ 
+  
   try {
     console.log('🔄 Cargando eventos...')
 
