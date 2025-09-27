@@ -40,27 +40,27 @@ npm run dev
  
  ### MAIN
  #### Login
- ![Login](frontend/assets/images/login.png)
+ ![Login](frontend/src/assets/images/login.png)
  
  #### User Registration
- ![Register](frontend/assets/images/register_user.png)
+ ![Register](frontend/src/assets/images/register_user.png)
 
  #### Calendar
- ![Calendar](frontend/assets/images/main_calendar.png)
+ ![Calendar](frontend/src/assets/images/main_calendar.png)
 
  ### EVENTS
  #### day with events
-![Day](frontend/assets/images/events_day.png)
+![Day](frontend/src/assets/images/events_day.png)
 
 #### create/edit Event
-![event](frontend/assets/images/create-edit-event.png)
+![event](frontend/src/assets/images/create-edit-event.png)
 
 ### CONTACTS
 #### Contact list
-![Contacts](frontend/assets/images/contacts.png)
+![Contacts](frontend/src/assets/images/contacts.png)
 
 #### Create/Edit Contact
-![Create/Edit Contact](frontend/assets/images/edit_contact.png)
+![Create/Edit Contact](frontend/src/assets/images/edit_contact.png)
 
 ## License
 This project is licensed under the MIT License. [LICENSE](LICENSE) file for details.
